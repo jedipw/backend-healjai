@@ -1,22 +1,20 @@
-const admin = require('firebase-admin');
+
+const express = require('express');
 const http = require('http');
+const apiRouter = require('./api');
+const bodyParser = require('body-parser');
 
-const serviceAccount = require('./serviceAccountKey.json');
+const app = express();
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
+// Parse JSON bodies
+app.use(bodyParser.json());
 
-const db = admin.firestore();
+// Add the API routes
+app.use('/api', apiRouter);
 
-// console.log(db);
 
 // Create a basic HTTP server
-const server = http.createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/plain');
-  res.end('Firebase app initialized!');
-});
+const server = http.createServer(app);
 
 // Start the server and listen on port 3000
 const PORT = 3000;
