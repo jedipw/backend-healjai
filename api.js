@@ -250,6 +250,7 @@ router.get('/getAllChat', async (req, res) => {
 // Check if the number already exists in Firestore
 router.get('/checkIfNumberExists', async (req, res) => {
     const number = req.query.number;
+    console.log("Random num: "+number)
     try {
         const querySnapshot = await db
             .collection("UserTagNumber")
@@ -267,6 +268,7 @@ router.get('/checkIfNumberExists', async (req, res) => {
 // Save user tag number to Firestore
 router.post('/saveUserTagNumber', async (req, res) => {
     const { userId, tagNumber } = req.body;
+    console.log("User id: "+userId+" Tag number: "+tagNumber);
     try {
         await db
             .collection("UserTagNumber")
@@ -282,6 +284,7 @@ router.post('/saveUserTagNumber', async (req, res) => {
 // Save user data to Firestore
 router.post('/saveUserData', async (req, res) => {
     const { userId } = req.body;
+    console.log("User id: "+userId);
     try {
         await db.collection("User").doc(userId).set({
             isPsychiatrist: false,
