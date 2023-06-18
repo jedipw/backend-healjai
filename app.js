@@ -22,6 +22,7 @@ io.on('connection', (socket) => {
   const userId = socket.handshake.query.username;
   socket.on(userId, (data) => {
     io.emit(userId, {})
+    io.emit('allChat', {})
   })
 })
 
