@@ -249,21 +249,20 @@ router.get('/getAllChat', async (req, res) => {
 //////////////////////////// START AUTHENTICATION PART ////////////////////////////
 // Check if the number already exists in Firestore
 router.get('/checkIfNumberExists', async (req, res) => {
-    const number = req.query.number;
-    console.log("Random num: "+number)
-    try {
-        const querySnapshot = await db
-            .collection("UserTagNumber")
-            .where("userTagNumber", "==", number)
-            .get();
-        res.status(200).json({ message: 'Checked successfully' });
-        return !querySnapshot.empty;
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Failed to check' });
-        return false;
-    }
-})
+  const number = req.query.number;
+  console.log("Random num: " + number);
+  try {
+    const querySnapshot = await db
+      .collection("UserTagNumber")
+      .where("userTagNumber", "==", number)
+      .get();
+    const exists = !querySnapshot.empty;
+    res.status(200).json({ exists: exists }); // Return the 'exists' field indicating whether the number exists
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to check' });
+  }
+});
 
 // Save user tag number to Firestore
 router.post('/saveUserTagNumber', async (req, res) => {
