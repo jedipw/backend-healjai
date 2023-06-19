@@ -20,7 +20,6 @@ router.get('/getIsPsychiatrist', async (req, res) => {
 
 router.post('/createUserChatMessage', async (req, res) => {
     try {
-        console.log(req.body)
         const { userId, text } = req.body;
 
         const chatMessage = db.collection('ChatMessage');
@@ -39,9 +38,38 @@ router.post('/createUserChatMessage', async (req, res) => {
     }
 });
 
+router.post('/createPsychiatristChatMessage', async (req, res) => {
+  try {
+      const { senderId, tagNumber, text } = req.body;
+
+      const userTagNumber = db.collection('UserTagNumber');
+      const getUserTagNumber = await userTagNumber.where('userTagNumber', '==', tagNumber).get();
+
+      let userId;
+      getUserTagNumber.forEach((doc) => {
+        userId = doc.id;
+      });
+
+      const chatMessage = db.collection('ChatMessage');
+      await chatMessage.add({
+          isRead: false,
+          sendAt: new Date(),
+          senderId: senderId,
+          text: text,
+          userId: userId,
+      });
+
+      res.status(200).json({ message: 'Message sent successfully' });
+  } catch (error) {
+      console.error('Error sending message:', error);
+      res.status(500).json({ error: 'Failed to send message' });
+  }
+});
+
 router.get('/getUserChat', async (req, res) => {
     try {
         const { tagNumber, isPsychiatrist, currentUserId } = req.query;
+        console.log(req.query);
 
         const isPsychiatristBool = isPsychiatrist === 'true';
 
@@ -103,7 +131,7 @@ router.get('/getUserChat', async (req, res) => {
                 if (senderUserId === userId) {
                     sender = 'User';
                 } else if (currentUserId === senderUserId) {
-                    sender = 'UserA';
+                    sender = 'You';
                 } else {
                     const psychiatristProfile = db.collection('PsychiatristProfile');
                     const senderInfo = await psychiatristProfile.where('userId', '==', senderUserId).get();
@@ -113,7 +141,7 @@ router.get('/getUserChat', async (req, res) => {
                 }
             } else if (!isPsychiatristBool) {
                 if (senderUserId === userId) {
-                    sender = 'UserA';
+                    sender = 'You';
                 } else {
                     const psychiatristProfile = db.collection('PsychiatristProfile');
                     const senderInfo = await psychiatristProfile.where('userId', '==', senderUserId).get();
@@ -154,6 +182,8 @@ router.get('/getAllChat', async (req, res) => {
     try {
         const { currentUserId } = req.query;
 
+        console.log(req.query);
+
         const formatDate = (timestamp) => {
             if (!timestamp) {
                 return ''; // Return an empty string if the timestamp is undefined
@@ -193,7 +223,6 @@ router.get('/getAllChat', async (req, res) => {
         const userIds = [];
         const allChats = [];
 
-        console.log('test');
         for (const doc of snapshot.docs) {
             const userId = doc.data()['userId'];
             const senderUserId = doc.data()['senderId'];
@@ -211,7 +240,7 @@ router.get('/getAllChat', async (req, res) => {
             if (senderUserId === userId) {
                 sender = `User #${tagNumber}`;
             } else if (senderUserId === currentUserId) {
-                sender = 'UserA';
+                sender = 'You';
             } else {
                 const psychiatristProfile = db.collection('PsychiatristProfile');
                 const senderInfo = await psychiatristProfile.where('userId', '==', senderUserId).get();
@@ -244,6 +273,32 @@ router.get('/getAllChat', async (req, res) => {
         console.error('Error getting all chat:', error);
         res.status(500).json({ error: 'Failed to get all chat' });
     }
+});
+
+router.get('/getUserIdFromTag', async (req, res) => {
+  const number = req.query.number;
+  try {
+    const querySnapshot = await db
+      .collection("UserTagNumber")
+      .where("userTagNumber", "==", number)
+      .get();
+
+    if (querySnapshot.empty) {
+      // No matching documents found
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    let userId;
+    querySnapshot.forEach((doc) => {
+      userId = doc.id;
+    });
+
+    // Send the userId to the client
+    res.status(200).json({ userId });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to get user id' });
+  }
 });
 
 //////////////////////////// START AUTHENTICATION PART ////////////////////////////

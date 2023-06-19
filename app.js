@@ -12,9 +12,23 @@ app.use(bodyParser.json());
 // Add the API routes
 app.use('/api', apiRouter);
 
-
 // Create a basic HTTP server
 const server = http.createServer(app);
+
+const { Server } = require("socket.io");
+const io = new Server(server);
+
+io.on('connection', (socket) => {
+  socket.on('userMessage', (data) => {
+    io.emit('userMessage', {})
+  })
+  socket.on('psycMessage', (data) => {
+    io.emit('psycMessage', {})
+  })
+  socket.on('readMessage', (data) => {
+    io.emit('readMessage', {})
+  })
+})
 
 // Start the server and listen on port 3000
 const PORT = 3000;
