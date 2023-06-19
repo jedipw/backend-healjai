@@ -19,10 +19,14 @@ const { Server } = require("socket.io");
 const io = new Server(server);
 
 io.on('connection', (socket) => {
-  const userId = socket.handshake.query.username;
-  socket.on(userId, (data) => {
-    io.emit(userId, {})
-    io.emit('allChat', {})
+  socket.on('userMessage', (data) => {
+    io.emit('userMessage', {})
+  })
+  socket.on('psycMessage', (data) => {
+    io.emit('psycMessage', {})
+  })
+  socket.on('readMessage', (data) => {
+    io.emit('readMessage', {})
   })
 })
 

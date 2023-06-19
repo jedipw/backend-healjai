@@ -69,6 +69,7 @@ router.post('/createPsychiatristChatMessage', async (req, res) => {
 router.get('/getUserChat', async (req, res) => {
     try {
         const { tagNumber, isPsychiatrist, currentUserId } = req.query;
+        console.log(req.query);
 
         const isPsychiatristBool = isPsychiatrist === 'true';
 
@@ -180,6 +181,8 @@ router.get('/getUserChat', async (req, res) => {
 router.get('/getAllChat', async (req, res) => {
     try {
         const { currentUserId } = req.query;
+
+        console.log(req.query);
 
         const formatDate = (timestamp) => {
             if (!timestamp) {
